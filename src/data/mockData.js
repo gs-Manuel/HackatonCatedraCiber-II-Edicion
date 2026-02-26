@@ -1,0 +1,43 @@
+export const inventory = [
+  { id: "INV-001", name: "Servidor Web Principal", type: "Server", os: "Linux/Apache", criticality: "High" },
+  { id: "INV-002", name: "Base de Datos Clientes", type: "Database", os: "MySQL", criticality: "Critical" },
+  { id: "INV-003", name: "Firewall Perimetral", type: "Network", os: "FortiOS", criticality: "Critical" },
+  { id: "INV-004", name: "Servidor de Archivos", type: "Server", os: "Windows Server 2019", criticality: "Medium" },
+  { id: "INV-005", name: "Portátiles Empleados", type: "Endpoint", os: "Windows 10", criticality: "Low" },
+  { id: "INV-006", name: "Router Principal", type: "Network", os: "Cisco IOS", criticality: "High" },
+  { id: "INV-007", name: "Sistema ERP", type: "Application", os: "Web", criticality: "Critical" },
+  { id: "INV-008", name: "Servidor de Correo", type: "Server", os: "Exchange", criticality: "High" }
+];
+
+export const vulnerabilities = [
+  { id: "VULN-001", cve: "CVE-2021-44228", name: "Log4Shell", severity: "Critical", affectedAssetId: "INV-001", status: "Open" },
+  { id: "VULN-002", cve: "CVE-2023-23397", name: "Outlook EoP", severity: "Critical", affectedAssetId: "INV-005", status: "Open" },
+  { id: "VULN-003", cve: "CVE-2021-34527", name: "PrintNightmare", severity: "High", affectedAssetId: "INV-004", status: "In Progress" },
+  { id: "VULN-004", cve: "CVE-2020-1472", name: "Zerologon", severity: "Critical", affectedAssetId: "INV-004", status: "Closed" },
+  { id: "VULN-005", cve: "CVE-2019-19781", name: "Citrix ADC", severity: "High", affectedAssetId: "INV-003", status: "Open" },
+  { id: "VULN-006", cve: "CVE-2017-0144", name: "EternalBlue", severity: "Critical", affectedAssetId: "INV-004", status: "Closed" },
+  { id: "VULN-007", cve: "CVE-2014-0160", name: "Heartbleed", severity: "High", affectedAssetId: "INV-001", status: "Closed" },
+  { id: "VULN-008", cve: "CVE-2022-30190", name: "Follina", severity: "High", affectedAssetId: "INV-005", status: "Open" },
+  { id: "VULN-009", cve: "CVE-2023-27532", name: "Veeam Backup", severity: "High", affectedAssetId: "INV-004", status: "Open" },
+  { id: "VULN-010", cve: "CVE-2023-2868", name: "Barracuda ESG", severity: "Critical", affectedAssetId: "INV-008", status: "Open" },
+  { id: "VULN-011", cve: "CVE-2021-26855", name: "ProxyLogon", severity: "Critical", affectedAssetId: "INV-008", status: "Closed" },
+  { id: "VULN-012", cve: "CVE-2022-41040", name: "ProxyNotShell", severity: "Critical", affectedAssetId: "INV-008", status: "Open" },
+  { id: "VULN-013", cve: "CVE-2023-34362", name: "MOVEit Transfer", severity: "Critical", affectedAssetId: "INV-004", status: "Open" },
+  { id: "VULN-014", cve: "CVE-2020-0601", name: "CurveBall", severity: "High", affectedAssetId: "INV-005", status: "Closed" },
+  { id: "VULN-015", cve: "CVE-2019-0708", name: "BlueKeep", severity: "Critical", affectedAssetId: "INV-004", status: "Closed" },
+  { id: "VULN-016", cve: "CVE-2021-40444", name: "MSHTML RCE", severity: "High", affectedAssetId: "INV-005", status: "Open" },
+  { id: "VULN-017", cve: "CVE-2022-22965", name: "Spring4Shell", severity: "Critical", affectedAssetId: "INV-007", status: "Open" },
+  { id: "VULN-018", cve: "CVE-2020-5902", name: "F5 BIG-IP RCE", severity: "Critical", affectedAssetId: "INV-003", status: "Closed" },
+  { id: "VULN-019", cve: "CVE-2023-20887", name: "VMware Aria RCE", severity: "Critical", affectedAssetId: "INV-001", status: "Open" },
+  { id: "VULN-020", cve: "CVE-2023-38146", name: "Windows Theme API", severity: "High", affectedAssetId: "INV-005", status: "Open" },
+  { id: "VULN-021", cve: "CVE-2021-22205", name: "GitLab RCE", severity: "Critical", affectedAssetId: "INV-001", status: "Closed" },
+  { id: "VULN-022", cve: "CVE-2022-1388", name: "F5 BIG-IP Auth Bypass", severity: "Critical", affectedAssetId: "INV-003", status: "Closed" },
+  { id: "VULN-023", cve: "CVE-2023-28121", name: "WooCommerce Payments", severity: "High", affectedAssetId: "INV-001", status: "Open" },
+  { id: "VULN-024", cve: "CVE-2023-27350", name: "PaperCut MF/NG", severity: "Critical", affectedAssetId: "INV-004", status: "Open" },
+  { id: "VULN-025", cve: "CVE-2023-3519", name: "Citrix NetScaler RCE", severity: "Critical", affectedAssetId: "INV-003", status: "Open" },
+  { id: "VULN-026", cve: "CVE-2023-4966", name: "Citrix Bleed", severity: "Critical", affectedAssetId: "INV-003", status: "Open" },
+  { id: "VULN-027", cve: "CVE-2024-21412", name: "Windows SmartScreen Bypass", severity: "High", affectedAssetId: "INV-005", status: "Open" },
+  { id: "VULN-028", cve: "CVE-2024-21338", name: "Windows Kernel EoP", severity: "High", affectedAssetId: "INV-004", status: "Open" },
+  { id: "VULN-029", cve: "CVE-2024-1709", name: "ConnectWise ScreenConnect", severity: "Critical", affectedAssetId: "INV-001", status: "Open" },
+  { id: "VULN-030", cve: "CVE-2024-3400", name: "Palo Alto PAN-OS", severity: "Critical", affectedAssetId: "INV-003", status: "Open" }
+];
