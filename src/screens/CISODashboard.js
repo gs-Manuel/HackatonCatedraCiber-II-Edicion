@@ -1,7 +1,13 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { inventory, vulnerabilities } from "../data/mockData";
 
-export default function CISODashboard() {
+export default function CISODashboard({ navigation }) {
   const openVulns = vulnerabilities.filter((v) => v.status === "Open");
 
   const renderVuln = ({ item }) => {
@@ -36,6 +42,12 @@ export default function CISODashboard() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard Técnico (CISO)</Text>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate("HomeCEO")}
+        >
+          <Text style={styles.navButtonText}>Volver a Inicio</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
@@ -70,10 +82,19 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#1e1e1e",
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     borderBottomWidth: 1,
     borderBottomColor: "#333",
   },
   headerTitle: { color: "#00ffcc", fontSize: 18, fontWeight: "bold" },
+  navButton: {
+    backgroundColor: "#00a6ff",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  navButtonText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
   content: { flex: 1, padding: 15 },
   powerBiPlaceholder: {
     height: 200,

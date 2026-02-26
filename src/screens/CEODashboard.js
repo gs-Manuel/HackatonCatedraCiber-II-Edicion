@@ -1,7 +1,20 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { vulnerabilities } from "../data/mockData";
 
-export default function CEODashboard() {
+const POWER_BI_EMBED_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiY2UyMGJlYjAtMWRjMS00MDEyLTk3YmItMmYzNGNlN2JjMDIwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
+
+export default function CEODashboard({ navigation }) {
+  const WebViewComponent =
+    Platform.OS !== "web" ? require("react-native-webview").WebView : null;
+
   const criticalCount = vulnerabilities.filter(
     (v) => v.severity === "Critical" && v.status === "Open",
   ).length;
@@ -11,6 +24,12 @@ export default function CEODashboard() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard Ejecutivo (CEO)</Text>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate("CISO")}
+        >
+          <Text style={styles.navButtonText}>Ir a CISO</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
@@ -34,15 +53,34 @@ export default function CEODashboard() {
           </View>
         </View>
 
-        <View style={styles.powerBiPlaceholder}>
-          <Text style={styles.powerBiText}>
+        <View style={styles.powerBiContainer}>
+          <Text style={styles.powerBiTitle}>
             📊 Power BI: Resumen de Riesgo de Negocio
           </Text>
-          <Text style={styles.powerBiSubText}>
-            (Aquí iría el iframe/WebView del reporte de Power BI para el CEO.
-            Para implementarlo, instala 'react-native-webview' y usa la URL de
-            tu reporte publicado.)
-          </Text>
+          {Platform.OS === "web" ? (
+            <iframe
+              src={POWER_BI_EMBED_URL}
+              title="Hackathon"
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              allowFullScreen
+              style={styles.powerBiIframe}
+            />
+          ) : (
+            <WebViewComponent
+              source={{ uri: POWER_BI_EMBED_URL }}
+              style={styles.powerBiWebview}
+              javaScriptEnabled
+              domStorageEnabled
+              startInLoadingState
+              scalesPageToFit
+              allowsFullscreenVideo
+              setSupportMultipleWindows={false}
+              nestedScrollEnabled
+              originWhitelist={["*"]}
+            />
+          )}
         </View>
       </ScrollView>
     </View>
@@ -51,8 +89,21 @@ export default function CEODashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: { padding: 20, backgroundColor: "#003366", alignItems: "center" },
+  header: {
+    padding: 20,
+    backgroundColor: "#003366",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   headerTitle: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  navButton: {
+    backgroundColor: "#00a6ff",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  navButtonText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
   content: { padding: 15 },
   metricsContainer: {
     flexDirection: "row",
@@ -69,27 +120,27 @@ const styles = StyleSheet.create({
   },
   metricValue: { fontSize: 24, fontWeight: "bold", color: "#333" },
   metricLabel: { fontSize: 12, color: "#666", marginTop: 5 },
-  powerBiPlaceholder: {
-    height: 300,
-    backgroundColor: "#e0e0e0",
-    justifyContent: "center",
-    alignItems: "center",
+  powerBiContainer: {
+    height: 560,
+    backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderStyle: "dashed",
+    overflow: "hidden",
   },
-  powerBiText: {
-    fontSize: 18,
+  powerBiTitle: {
+    fontSize: 16,
     fontWeight: "bold",
     color: "#555",
     textAlign: "center",
+    paddingVertical: 12,
+    backgroundColor: "#f2f2f2",
   },
-  powerBiSubText: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 10,
-    textAlign: "center",
-    paddingHorizontal: 20,
+  powerBiWebview: {
+    flex: 1,
+  },
+  powerBiIframe: {
+    borderWidth: 0,
+    flex: 1,
   },
 });

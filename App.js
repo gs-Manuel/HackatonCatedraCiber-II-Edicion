@@ -1,17 +1,23 @@
-import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "react-native";
+import "react-native-gesture-handler";
 import CEODashboard from "./src/screens/CEODashboard";
+import CISODashboard from "./src/screens/CISODashboard";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
+    <NavigationContainer>
       <StatusBar barStyle="dark-content" />
-      <CEODashboard />
-    </SafeAreaView>
+      <Stack.Navigator
+        initialRouteName="HomeCEO"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="HomeCEO" component={CEODashboard} />
+        <Stack.Screen name="CISO" component={CISODashboard} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
