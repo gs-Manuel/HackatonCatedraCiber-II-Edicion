@@ -1,8 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({});
+
 
 async function geminiReq(query, context = "") {
+    const ai = new GoogleGenAI({});
+    //Hay que guardar la ApiKey en una varuiable de entorno llamada GEMINI_API_KEY
     const payload = {
         model: "gemini-3-flash-preview",
         contents: query,
