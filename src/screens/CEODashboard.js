@@ -12,12 +12,16 @@ import {
 import { inventory, vulnerabilities } from "../data/mockData";
 import geminiReq from "../ia/geminiReq";
 
-const POWER_BI_EMBED_URL =
+const POWER_BI_WEB_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
+const POWER_BI_MOBILE_EMBED_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiMjg2NjY5YmQtMmU3MS00ZDdhLWIzYjMtMjdjMThlNTA4NWRkIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
 
 export default function CEODashboard({ navigation }) {
   const WebViewComponent =
     Platform.OS !== "web" ? require("react-native-webview").WebView : null;
+  const powerBiUrl =
+    Platform.OS === "web" ? POWER_BI_WEB_EMBED_URL : POWER_BI_MOBILE_EMBED_URL;
 
   const [reportVisible, setReportVisible] = useState(false);
   const [reportContent, setReportContent] = useState("");
@@ -184,7 +188,7 @@ ${vulnContext}`;
           </Text>
           {Platform.OS === "web" ? (
             <iframe
-              src={POWER_BI_EMBED_URL}
+              src={powerBiUrl}
               title="Hackathon"
               width="100%"
               height="100%"
@@ -194,7 +198,7 @@ ${vulnContext}`;
             />
           ) : (
             <WebViewComponent
-              source={{ uri: POWER_BI_EMBED_URL }}
+              source={{ uri: powerBiUrl }}
               style={styles.powerBiWebview}
               javaScriptEnabled
               domStorageEnabled
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 24, fontWeight: "bold", color: "#333" },
   metricLabel: { fontSize: 12, color: "#666", marginTop: 5 },
   powerBiContainer: {
-    height: 560,
+    height: Platform.OS === "web" ? 560 : 300,
     backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,

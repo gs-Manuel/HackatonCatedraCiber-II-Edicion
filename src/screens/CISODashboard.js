@@ -10,12 +10,16 @@ import {
 } from "react-native";
 import { inventory, vulnerabilities } from "../data/mockData";
 
-const POWER_BI_EMBED_URL =
+const POWER_BI_WEB_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
+const POWER_BI_MOBILE_EMBED_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiMjg2NjY5YmQtMmU3MS00ZDdhLWIzYjMtMjdjMThlNTA4NWRkIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
 
 export default function CISODashboard({ navigation }) {
   const WebViewComponent =
     Platform.OS !== "web" ? require("react-native-webview").WebView : null;
+  const powerBiUrl =
+    Platform.OS === "web" ? POWER_BI_WEB_EMBED_URL : POWER_BI_MOBILE_EMBED_URL;
 
   const [sortByCVSS, setSortByCVSS] = useState("desc");
   const [selectedSeverity, setSelectedSeverity] = useState(null);
@@ -102,7 +106,7 @@ export default function CISODashboard({ navigation }) {
           </Text>
           {Platform.OS === "web" ? (
             <iframe
-              src={POWER_BI_EMBED_URL}
+              src={powerBiUrl}
               title="Hackathon"
               width="100%"
               height="100%"
@@ -112,7 +116,7 @@ export default function CISODashboard({ navigation }) {
             />
           ) : (
             <WebViewComponent
-              source={{ uri: POWER_BI_EMBED_URL }}
+              source={{ uri: powerBiUrl }}
               style={styles.powerBiWebview}
               javaScriptEnabled
               domStorageEnabled
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
   navButtonText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
   content: { flex: 1, padding: 15 },
   powerBiContainer: {
-    height: 560,
+    height: Platform.OS === "web" ? 560 : 300,
     backgroundColor: "#1e1e1e",
     borderRadius: 8,
     borderWidth: 1,
