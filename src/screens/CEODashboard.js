@@ -1,20 +1,19 @@
+import { useState } from "react";
 import {
+  FlatList,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  FlatList,
-  Modal,
-  ActivityIndicator,
 } from "react-native";
-import { useState } from "react";
-import { vulnerabilities, inventory } from "../data/mockData";
+import { inventory, vulnerabilities } from "../data/mockData";
 import geminiReq from "../ia/geminiReq";
 
 const POWER_BI_EMBED_URL =
-  "https://app.powerbi.com/view?r=eyJrIjoiY2UyMGJlYjAtMWRjMS00MDEyLTk3YmItMmYzNGNlN2JjMDIwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
+  "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
 
 export default function CEODashboard({ navigation }) {
   const WebViewComponent =
@@ -32,7 +31,7 @@ export default function CEODashboard({ navigation }) {
   // Calcular activos comprometidos
   const getCompromisedAssets = () => {
     const assetMap = {};
-    
+
     // Agrupar vulnerabilidades abiertas por activo
     vulnerabilities
       .filter((v) => v.status === "Open")
@@ -73,7 +72,9 @@ export default function CEODashboard({ navigation }) {
     setReportLoading(true);
     try {
       // Preparar información de vulnerabilidades abiertas
-      const openVulnerabilities = vulnerabilities.filter((v) => v.status === "Open");
+      const openVulnerabilities = vulnerabilities.filter(
+        (v) => v.status === "Open",
+      );
       const vulnContext = JSON.stringify(openVulnerabilities, null, 2);
 
       const systemMessage = `Eres un analista de ciberseguridad experto. Tu tarea es generar un informe ejecutivo breve y clara para un CEO.
@@ -89,7 +90,8 @@ Formato: Texto claro y profesional, sin jerga técnica excesiva, enfocado en imp
 Datos de vulnerabilidades abiertas:
 ${vulnContext}`;
 
-      const userMessage = "Genera un informe ejecutivo de seguridad basado en los datos de vulnerabilidades proporcionados. Devuelve únicamente texto plano con el informe, ningún dato adiconal";
+      const userMessage =
+        "Genera un informe ejecutivo de seguridad basado en los datos de vulnerabilidades proporcionados. Devuelve únicamente texto plano con el informe, ningún dato adiconal";
 
       const report = await geminiReq(userMessage, systemMessage);
       setReportContent(report);
@@ -150,7 +152,9 @@ ${vulnContext}`;
           activeOpacity={0.7}
         >
           <Text style={styles.reportButtonText}>
-            {reportLoading ? "⏳ Generando informe..." : "📋 Generar Informe de Seguridad"}
+            {reportLoading
+              ? "⏳ Generando informe..."
+              : "📋 Generar Informe de Seguridad"}
           </Text>
         </TouchableOpacity>
 

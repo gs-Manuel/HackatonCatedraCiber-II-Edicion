@@ -1,16 +1,22 @@
 import { useState } from "react";
 import {
   FlatList,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
-  TextInput,
 } from "react-native";
 import { inventory, vulnerabilities } from "../data/mockData";
 
+const POWER_BI_EMBED_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
+
 export default function CISODashboard({ navigation }) {
+  const WebViewComponent =
+    Platform.OS !== "web" ? require("react-native-webview").WebView : null;
+
   const [sortByCVSS, setSortByCVSS] = useState("desc");
   const [selectedSeverity, setSelectedSeverity] = useState(null);
   const [daysFilter, setDaysFilter] = useState(null);
@@ -27,13 +33,15 @@ export default function CISODashboard({ navigation }) {
   // Filtrar vulnerabilidades
   let filteredVulns = vulnerabilities.filter((v) => {
     const matchStatus = v.status === "Open";
-    const matchSeverity = selectedSeverity ? v.severity === selectedSeverity : true;
-    
+    const matchSeverity = selectedSeverity
+      ? v.severity === selectedSeverity
+      : true;
+
     // Filtro de fecha - parsear la fecha string
     const cutoffDate = getCutoffDate();
     const vulnDate = new Date(v.discoveredDate);
     const matchDate = vulnDate >= cutoffDate;
-    
+
     return matchStatus && matchSeverity && matchDate;
   });
 
@@ -88,15 +96,34 @@ export default function CISODashboard({ navigation }) {
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.powerBiPlaceholder}>
-          <Text style={styles.powerBiText}>
+        <View style={styles.powerBiContainer}>
+          <Text style={styles.powerBiTitle}>
             📊 Power BI: Estado de Parches y Amenazas
           </Text>
-          <Text style={styles.powerBiSubText}>
-            (Aquí iría el iframe/WebView del reporte detallado para el CISO.
-            Para implementarlo, instala 'react-native-webview' y usa la URL de
-            tu reporte publicado.)
-          </Text>
+          {Platform.OS === "web" ? (
+            <iframe
+              src={POWER_BI_EMBED_URL}
+              title="Hackathon"
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              allowFullScreen
+              style={styles.powerBiIframe}
+            />
+          ) : (
+            <WebViewComponent
+              source={{ uri: POWER_BI_EMBED_URL }}
+              style={styles.powerBiWebview}
+              javaScriptEnabled
+              domStorageEnabled
+              startInLoadingState
+              scalesPageToFit
+              allowsFullscreenVideo
+              setSupportMultipleWindows={false}
+              nestedScrollEnabled
+              originWhitelist={["*"]}
+            />
+          )}
         </View>
 
         <Text style={styles.sectionTitle}>
@@ -115,109 +142,120 @@ export default function CISODashboard({ navigation }) {
 
         {/* Controles de Ordenamiento y Filtros */}
         {filtersVisible && (
-        <View style={styles.controlsContainer}>
-          {/* Ordenar por CVSS */}
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>Ordenar CVSS:</Text>
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  sortByCVSS === "desc" && styles.filterButtonActive,
-                ]}
-                onPress={() => setSortByCVSS("desc")}
-              >
-                <Text style={styles.filterButtonText}>Mayor ↓</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  sortByCVSS === "asc" && styles.filterButtonActive,
-                ]}
-                onPress={() => setSortByCVSS("asc")}
-              >
-                <Text style={styles.filterButtonText}>Menor ↑</Text>
-              </TouchableOpacity>
+          <View style={styles.controlsContainer}>
+            {/* Ordenar por CVSS */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Ordenar CVSS:</Text>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    sortByCVSS === "desc" && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setSortByCVSS("desc")}
+                >
+                  <Text style={styles.filterButtonText}>Mayor ↓</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    sortByCVSS === "asc" && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setSortByCVSS("asc")}
+                >
+                  <Text style={styles.filterButtonText}>Menor ↑</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
 
-          {/* Filtrar por Criticidad */}
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>Criticidad:</Text>
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  !selectedSeverity && styles.filterButtonActive,
-                ]}
-                onPress={() => setSelectedSeverity(null)}
-              >
-                <Text style={styles.filterButtonText}>Todas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  selectedSeverity === "Critical" && styles.filterButtonActive,
-                ]}
-                onPress={() => setSelectedSeverity(selectedSeverity === "Critical" ? null : "Critical")}
-              >
-                <Text style={styles.filterButtonText}>Críticas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  selectedSeverity === "High" && styles.filterButtonActive,
-                ]}
-                onPress={() => setSelectedSeverity(selectedSeverity === "High" ? null : "High")}
-              >
-                <Text style={styles.filterButtonText}>Altas</Text>
-              </TouchableOpacity>
+            {/* Filtrar por Criticidad */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Criticidad:</Text>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    !selectedSeverity && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setSelectedSeverity(null)}
+                >
+                  <Text style={styles.filterButtonText}>Todas</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    selectedSeverity === "Critical" &&
+                      styles.filterButtonActive,
+                  ]}
+                  onPress={() =>
+                    setSelectedSeverity(
+                      selectedSeverity === "Critical" ? null : "Critical",
+                    )
+                  }
+                >
+                  <Text style={styles.filterButtonText}>Críticas</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    selectedSeverity === "High" && styles.filterButtonActive,
+                  ]}
+                  onPress={() =>
+                    setSelectedSeverity(
+                      selectedSeverity === "High" ? null : "High",
+                    )
+                  }
+                >
+                  <Text style={styles.filterButtonText}>Altas</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
 
-          {/* Filtrar por Rango de Días */}
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>Período: {daysFilter ? `${daysFilter} días` : "Todos"}</Text>
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  daysFilter === null && styles.filterButtonActive,
-                ]}
-                onPress={() => setDaysFilter(null)}
-              >
-                <Text style={styles.filterButtonText}>Todos</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  daysFilter === 30 && styles.filterButtonActive,
-                ]}
-                onPress={() => setDaysFilter(daysFilter === 30 ? null : 30)}
-              >
-                <Text style={styles.filterButtonText}>30 días</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  daysFilter === 90 && styles.filterButtonActive,
-                ]}
-                onPress={() => setDaysFilter(daysFilter === 90 ? null : 90)}
-              >
-                <Text style={styles.filterButtonText}>90 días</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  daysFilter === 365 && styles.filterButtonActive,
-                ]}
-                onPress={() => setDaysFilter(daysFilter === 365 ? null : 365)}
-              >
-                <Text style={styles.filterButtonText}>1 año</Text>
-              </TouchableOpacity>
+            {/* Filtrar por Rango de Días */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>
+                Período: {daysFilter ? `${daysFilter} días` : "Todos"}
+              </Text>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    daysFilter === null && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setDaysFilter(null)}
+                >
+                  <Text style={styles.filterButtonText}>Todos</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    daysFilter === 30 && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setDaysFilter(daysFilter === 30 ? null : 30)}
+                >
+                  <Text style={styles.filterButtonText}>30 días</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    daysFilter === 90 && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setDaysFilter(daysFilter === 90 ? null : 90)}
+                >
+                  <Text style={styles.filterButtonText}>90 días</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    daysFilter === 365 && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setDaysFilter(daysFilter === 365 ? null : 365)}
+                >
+                  <Text style={styles.filterButtonText}>1 año</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
         )}
 
         <FlatList
@@ -253,29 +291,29 @@ const styles = StyleSheet.create({
   },
   navButtonText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
   content: { flex: 1, padding: 15 },
-  powerBiPlaceholder: {
-    height: 200,
+  powerBiContainer: {
+    height: 560,
     backgroundColor: "#1e1e1e",
-    justifyContent: "center",
-    alignItems: "center",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#333",
-    borderStyle: "dashed",
+    overflow: "hidden",
     marginBottom: 20,
   },
-  powerBiText: {
+  powerBiTitle: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#aaa",
     textAlign: "center",
+    paddingVertical: 12,
+    backgroundColor: "#222",
   },
-  powerBiSubText: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 10,
-    textAlign: "center",
-    paddingHorizontal: 20,
+  powerBiWebview: {
+    flex: 1,
+  },
+  powerBiIframe: {
+    borderWidth: 0,
+    flex: 1,
   },
   sectionTitle: {
     color: "#fff",
@@ -366,7 +404,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
   },
-  vulnName: { color: "#fff", fontWeight: "bold", fontSize: 14, flex: 1, flexWrap: "wrap" },
+  vulnName: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    flex: 1,
+    flexWrap: "wrap",
+  },
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
