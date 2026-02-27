@@ -28,7 +28,10 @@ export default function CISODashboard({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.brandContainer}>
-          <Image source={require("../../assets/logo.png")} style={styles.logo} />
+          <Image
+            source={require("../../assets/logo.png")}
+            style={styles.logo}
+          />
           <View style={styles.titleRow}>
             <Text style={styles.headerTitle}>KSKU</Text>
             <Text style={styles.headerSubtitle}>Dashboard Técnico (CISO)</Text>

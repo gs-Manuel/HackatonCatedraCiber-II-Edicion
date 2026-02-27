@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { vulnerabilities } from "../data/mockData";
-import geminiReq from "../ia/geminiReq";
 import CompromisedAssetsList from "../componentes/CompromisedAssetsList";
 import InventoryList from "../componentes/InventoryList";
+import { vulnerabilities } from "../data/mockData";
+import geminiReq from "../ia/geminiReq";
 
 const POWER_BI_WEB_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
@@ -71,13 +71,14 @@ ${vulnContext}`;
     }
   };
 
-
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.brandContainer}>
-          <Image source={require("../../assets/logo.png")} style={styles.logo} />
+          <Image
+            source={require("../../assets/logo.png")}
+            style={styles.logo}
+          />
           <View style={styles.titleRow}>
             <Text style={styles.headerTitle}>KSKU</Text>
             <Text style={styles.headerSubtitle}>Dashboard Ejecutivo (CEO)</Text>
@@ -93,12 +94,14 @@ ${vulnContext}`;
 
       <ScrollView style={styles.content}>
         <TouchableOpacity
-          style={styles.reportButton}
+          style={[styles.reportButton, styles.reportButtonDisabled]}
           onPress={generateReport}
-          disabled={reportLoading}
+          disabled={true}
           activeOpacity={0.7}
         >
-          <Text style={styles.reportButtonText}>
+          <Text
+            style={[styles.reportButtonText, styles.reportButtonTextDisabled]}
+          >
             {reportLoading
               ? "⏳ Generando informe..."
               : "📋 Generar Informe de Seguridad"}
@@ -169,7 +172,7 @@ ${vulnContext}`;
                 activeView === "compromised" && styles.viewButtonTextActive,
               ]}
             >
-               Activos Comprometidos
+              Activos Comprometidos
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -185,7 +188,7 @@ ${vulnContext}`;
                 activeView === "inventory" && styles.viewButtonTextActive,
               ]}
             >
-               Inventario de Activos
+              Inventario de Activos
             </Text>
           </TouchableOpacity>
         </View>
@@ -262,7 +265,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
   },
+  reportButtonDisabled: {
+    backgroundColor: "#c7c7c7",
+    opacity: 0.7,
+  },
   reportButtonText: { color: "#fff", fontWeight: "bold", fontSize: 14 },
+  reportButtonTextDisabled: { color: "#6f6f6f" },
   navButton: {
     backgroundColor: "#00a6ff",
     paddingHorizontal: 12,
