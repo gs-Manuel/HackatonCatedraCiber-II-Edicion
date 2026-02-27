@@ -7,12 +7,15 @@ import {
   View,
 } from "react-native";
 import { inventory, vulnerabilities } from "../data/mockData";
+import VulnerabilityDetail from "./VulnerabilityDetail";
 
 export default function VulnerabilitiesList() {
   const [sortByCVSS, setSortByCVSS] = useState("desc");
   const [selectedSeverity, setSelectedSeverity] = useState(null);
   const [daysFilter, setDaysFilter] = useState(null);
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [selectedVulnerability, setSelectedVulnerability] = useState(null);
 
   // Calcular fecha de cutoff basada en días
   const getCutoffDate = () => {
@@ -47,7 +50,14 @@ export default function VulnerabilitiesList() {
   const renderVuln = ({ item }) => {
     const asset = inventory.find((a) => a.id === item.affectedAssetId);
     return (
-      <View style={styles.vulnCard}>
+      <TouchableOpacity
+        style={styles.vulnCard}
+        onPress={() => {
+          setSelectedVulnerability(item);
+          setDetailVisible(true);
+        }}
+        activeOpacity={0.7}
+      >
         <View style={styles.vulnHeader}>
           <Text style={styles.vulnName}>
             {item.cve} - {item.name}
@@ -66,12 +76,14 @@ export default function VulnerabilitiesList() {
             <Text style={styles.cvssScore}>CVSS: {item.cvss}</Text>
           </View>
         </View>
-        <Text style={styles.vulnDetail}>
-          Activo Afectado: {asset ? asset.name : "Desconocido"} (
+        <Text style={styles.vulnDetail}>Activo Afectado: {asset ? asset.name : "Desconocido"} (
           {item.affectedAssetId})
         </Text>
-        <Text style={styles.vulnDetail}>Estado: {item.status}</Text>
-      </View>
+        <View style={styles.vulnFooter}>
+          <Text style={styles.vulnDetail}>Estado: {item.status}</Text>
+          <Text style={styles.detailIndicator}>→</Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 
@@ -216,6 +228,12 @@ export default function VulnerabilitiesList() {
         scrollEnabled={false}
         nestedScrollEnabled={false}
       />
+
+      <VulnerabilityDetail
+        visible={detailVisible}
+        vulnerability={selectedVulnerability}
+        onClose={() => setDetailVisible(false)}
+      />
     </View>
   );
 }
@@ -332,4 +350,15 @@ const styles = StyleSheet.create({
   badgeCritical: { backgroundColor: "#ff4444" },
   badgeHigh: { backgroundColor: "#ff8800" },
   vulnDetail: { color: "#aaa", fontSize: 12, marginTop: 2 },
+  vulnFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  detailIndicator: {
+    color: "#00ffcc",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
