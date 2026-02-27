@@ -87,7 +87,7 @@ export default function CISODashboard({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <View style={styles.powerBiPlaceholder}>
           <Text style={styles.powerBiText}>
             📊 Power BI: Estado de Parches y Amenazas
@@ -225,9 +225,10 @@ export default function CISODashboard({ navigation }) {
           keyExtractor={(item) => item.id}
           renderItem={renderVuln}
           contentContainerStyle={{ paddingBottom: 20, minHeight: 300 }}
-          scrollEnabled={true}
+          scrollEnabled={false}
+          nestedScrollEnabled={false}
         />
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -360,9 +361,12 @@ const styles = StyleSheet.create({
   vulnHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 5,
+    flexWrap: "wrap",
+    gap: 8,
   },
-  vulnName: { color: "#fff", fontWeight: "bold", fontSize: 14 },
+  vulnName: { color: "#fff", fontWeight: "bold", fontSize: 14, flex: 1, flexWrap: "wrap" },
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
