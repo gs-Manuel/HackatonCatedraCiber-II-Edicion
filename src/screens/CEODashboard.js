@@ -6,8 +6,12 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
+import { useState } from "react";
 import { vulnerabilities, inventory } from "../data/mockData";
+import geminiReq from "../ia/geminiReq";
 
 const POWER_BI_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiY2UyMGJlYjAtMWRjMS00MDEyLTk3YmItMmYzNGNlN2JjMDIwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
@@ -15,6 +19,10 @@ const POWER_BI_EMBED_URL =
 export default function CEODashboard({ navigation }) {
   const WebViewComponent =
     Platform.OS !== "web" ? require("react-native-webview").WebView : null;
+
+  const [reportVisible, setReportVisible] = useState(false);
+  const [reportContent, setReportContent] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
 
   const criticalCount = vulnerabilities.filter(
     (v) => v.severity === "Critical" && v.status === "Open",
@@ -61,6 +69,39 @@ export default function CEODashboard({ navigation }) {
 
   const compromisedAssets = getCompromisedAssets();
 
+  const generateReport = async () => {
+    setReportLoading(true);
+    try {
+      // Preparar información de vulnerabilidades abiertas
+      const openVulnerabilities = vulnerabilities.filter((v) => v.status === "Open");
+      const vulnContext = JSON.stringify(openVulnerabilities, null, 2);
+
+      const systemMessage = `Eres un analista de ciberseguridad experto. Tu tarea es generar un informe ejecutivo breve y clara para un CEO.
+
+El informe debe:
+1. Resumir el estado actual de seguridad en 2-3 párrafos
+2. Destacar los principales riesgos críticos
+3. Proporcionar 3-4 recomendaciones accionables prioritarias
+4. Incluir un nivel de riesgo general (Bajo/Medio/Alto/Crítico)
+
+Formato: Texto claro y profesional, sin jerga técnica excesiva, enfocado en impacto al negocio.
+
+Datos de vulnerabilidades abiertas:
+${vulnContext}`;
+
+      const userMessage = "Genera un informe ejecutivo de seguridad basado en los datos de vulnerabilidades proporcionados. Devuelve únicamente texto plano con el informe, ningún dato adiconal";
+
+      const report = await geminiReq(userMessage, systemMessage);
+      setReportContent(report);
+      setReportVisible(true);
+    } catch (error) {
+      setReportContent(`Error al generar el informe: ${error.message}`);
+      setReportVisible(true);
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const renderCompromisedAsset = ({ item }) => {
     const severityColors = {
       Critical: "#ff4444",
@@ -102,6 +143,17 @@ export default function CEODashboard({ navigation }) {
       </View>
 
       <ScrollView style={styles.content}>
+        <TouchableOpacity
+          style={styles.reportButton}
+          onPress={generateReport}
+          disabled={reportLoading}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.reportButtonText}>
+            {reportLoading ? "⏳ Generando informe..." : "📋 Generar Informe de Seguridad"}
+          </Text>
+        </TouchableOpacity>
+
         <View style={styles.metricsContainer}>
           <View style={styles.metricCard}>
             <Text style={styles.metricValue}>{riskScore}/100</Text>
@@ -165,6 +217,29 @@ export default function CEODashboard({ navigation }) {
           />
         </View>
       </ScrollView>
+
+      {/* Modal para mostrar el informe */}
+      <Modal
+        visible={reportVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setReportVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Informe de Seguridad</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setReportVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.modalContent}>
+            <Text style={styles.reportText}>{reportContent}</Text>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -177,8 +252,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: 10,
   },
   headerTitle: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  reportButton: {
+    backgroundColor: "#ff6b6b",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  reportButtonText: { color: "#fff", fontWeight: "bold", fontSize: 14 },
   navButton: {
     backgroundColor: "#00a6ff",
     paddingHorizontal: 12,
@@ -273,5 +358,39 @@ const styles = StyleSheet.create({
   assetDetail: {
     fontSize: 12,
     color: "#666",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#003366",
+    padding: 15,
+    paddingTop: 20,
+  },
+  modalTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  reportText: {
+    color: "#333",
+    fontSize: 14,
+    lineHeight: 22,
   },
 });

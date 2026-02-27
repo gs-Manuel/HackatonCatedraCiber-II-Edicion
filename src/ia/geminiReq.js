@@ -1,25 +1,31 @@
-import { GoogleGenAI } from "@google/genai";
-
-
-
 async function geminiReq(query, context = "") {
-    const ai = new GoogleGenAI({});
-    //Hay que guardar la ApiKey en una varuiable de entorno llamada GEMINI_API_KEY
-    const payload = {
-        model: "gemini-3-flash-preview",
-        contents: query,
-        config: {
-            responseMimeType: "text/plain",
-            temperature: 0.3
-        }
-    };
+  try {
+    const response = await fetch("http://localhost:3001/api/generate-report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        context,
+      }),
+    });
 
-    if (context && context.trim() !== "") {
-        payload.config.systemInstruction = context;
+    if (!response.ok) {
+      throw new Error(`Error del servidor: ${response.status}`);
     }
 
-    const response = await ai.models.generateContent(payload);
-    return response.text;
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Error desconocido del servidor");
+    }
+
+    return data.report;
+  } catch (error) {
+    console.error("Error en geminiReq:", error);
+    throw error;
+  }
 }
 
 export default geminiReq;
