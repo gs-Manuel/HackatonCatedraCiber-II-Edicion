@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -7,8 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import VulnerabilitiesList from "../componentes/VulnerabilitiesList";
 import InventoryList from "../componentes/InventoryList";
+import VulnerabilitiesList from "../componentes/VulnerabilitiesList";
 
 const POWER_BI_WEB_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
@@ -26,24 +27,30 @@ export default function CISODashboard({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard Técnico (CISO)</Text>
+        <View style={styles.brandContainer}>
+          <Image source={require("../../assets/logo.png")} style={styles.logo} />
+          <View style={styles.titleRow}>
+            <Text style={styles.headerTitle}>KSKU</Text>
+            <Text style={styles.headerSubtitle}>Dashboard Técnico (CISO)</Text>
+          </View>
+        </View>
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("HomeCEO")}
         >
-          <Text style={styles.navButtonText}>Volver a Inicio</Text>
+          <Text style={styles.navButtonText}>Ir a CEO</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
         <View style={styles.powerBiContainer}>
           <Text style={styles.powerBiTitle}>
-            📊 Power BI: Estado de Parches y Amenazas
+            📊 Estado de Parches y Amenazas
           </Text>
           {Platform.OS === "web" ? (
             <iframe
               src={powerBiUrl}
-              title="Hackathon"
+              title="KSKU"
               width="100%"
               height="100%"
               frameBorder="0"
@@ -80,7 +87,7 @@ export default function CISODashboard({ navigation }) {
                 activeView === "vulnerabilities" && styles.viewButtonTextActive,
               ]}
             >
-               Vulnerabilidades
+              Vulnerabilidades
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -96,7 +103,7 @@ export default function CISODashboard({ navigation }) {
                 activeView === "inventory" && styles.viewButtonTextActive,
               ]}
             >
-               Inventario
+              Inventario
             </Text>
           </TouchableOpacity>
         </View>
@@ -122,7 +129,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#333",
   },
+  brandContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flexShrink: 1,
+  },
+  logo: {
+    width: 34,
+    height: 34,
+    borderRadius: 6,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+    flexWrap: "wrap",
+  },
   headerTitle: { color: "#00ffcc", fontSize: 18, fontWeight: "bold" },
+  headerSubtitle: { color: "#8cefd9", fontSize: 12, fontWeight: "600" },
   navButton: {
     backgroundColor: "#00a6ff",
     paddingHorizontal: 12,

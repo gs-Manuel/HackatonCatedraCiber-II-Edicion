@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Image,
   Modal,
   Platform,
   ScrollView,
@@ -75,7 +76,13 @@ ${vulnContext}`;
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard Ejecutivo (CEO)</Text>
+        <View style={styles.brandContainer}>
+          <Image source={require("../../assets/logo.png")} style={styles.logo} />
+          <View style={styles.titleRow}>
+            <Text style={styles.headerTitle}>KSKU</Text>
+            <Text style={styles.headerSubtitle}>Dashboard Ejecutivo (CEO)</Text>
+          </View>
+        </View>
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("CISO")}
@@ -120,12 +127,12 @@ ${vulnContext}`;
 
         <View style={styles.powerBiContainer}>
           <Text style={styles.powerBiTitle}>
-            📊 Power BI: Resumen de Riesgo de Negocio
+            📊 Resumen de Riesgo de Negocio
           </Text>
           {Platform.OS === "web" ? (
             <iframe
               src={powerBiUrl}
-              title="Hackathon"
+              title="KSKU"
               width="100%"
               height="100%"
               frameBorder="0"
@@ -228,7 +235,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 10,
   },
+  brandContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flexShrink: 1,
+  },
+  logo: {
+    width: 34,
+    height: 34,
+    borderRadius: 6,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+    flexWrap: "wrap",
+  },
   headerTitle: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  headerSubtitle: { color: "#cfe6ff", fontSize: 12, fontWeight: "600" },
   reportButton: {
     backgroundColor: "#ff6b6b",
     paddingHorizontal: 16,
