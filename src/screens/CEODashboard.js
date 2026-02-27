@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  FlatList,
   Modal,
   Platform,
   ScrollView,
@@ -9,8 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { inventory, vulnerabilities } from "../data/mockData";
+import { vulnerabilities } from "../data/mockData";
 import geminiReq from "../ia/geminiReq";
+import CompromisedAssetsList from "../componentes/CompromisedAssetsList";
+import InventoryList from "../componentes/InventoryList";
 
 const POWER_BI_EMBED_URL =
   "https://app.powerbi.com/view?r=eyJrIjoiZjg4MzQ2MjEtYzg3Yy00Mjc3LThlZmUtNzM4YTdjYjQzNDAwIiwidCI6IjA1ZWE3NGEzLTkyYzUtNGMzMS05NzhhLTkyNWMzYzc5OWNkMCIsImMiOjh9";
@@ -22,51 +23,12 @@ export default function CEODashboard({ navigation }) {
   const [reportVisible, setReportVisible] = useState(false);
   const [reportContent, setReportContent] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
+  const [activeView, setActiveView] = useState("compromised"); // 'compromised' o 'inventory'
 
   const criticalCount = vulnerabilities.filter(
     (v) => v.severity === "Critical" && v.status === "Open",
   ).length;
   const riskScore = Math.max(0, 100 - criticalCount * 5); // Lógica simple de riesgo
-
-  // Calcular activos comprometidos
-  const getCompromisedAssets = () => {
-    const assetMap = {};
-
-    // Agrupar vulnerabilidades abiertas por activo
-    vulnerabilities
-      .filter((v) => v.status === "Open")
-      .forEach((v) => {
-        if (!assetMap[v.affectedAssetId]) {
-          assetMap[v.affectedAssetId] = {
-            assetId: v.affectedAssetId,
-            vulnerabilities: [],
-          };
-        }
-        assetMap[v.affectedAssetId].vulnerabilities.push(v);
-      });
-
-    // Convertir a array y ordenar
-    return Object.values(assetMap)
-      .map((item) => {
-        const asset = inventory.find((a) => a.id === item.assetId);
-        const severities = ["Critical", "High", "Medium", "Low"];
-        const mostSevere = item.vulnerabilities.reduce((most, curr) => {
-          const mostIndex = severities.indexOf(most.severity);
-          const currIndex = severities.indexOf(curr.severity);
-          return currIndex < mostIndex ? curr : most;
-        }).severity;
-
-        return {
-          assetId: item.assetId,
-          assetName: asset?.name || "Desconocido",
-          vulnCount: item.vulnerabilities.length,
-          mostSevere: mostSevere,
-        };
-      })
-      .sort((a, b) => b.vulnCount - a.vulnCount);
-  };
-
-  const compromisedAssets = getCompromisedAssets();
 
   const generateReport = async () => {
     setReportLoading(true);
@@ -104,33 +66,7 @@ ${vulnContext}`;
     }
   };
 
-  const renderCompromisedAsset = ({ item }) => {
-    const severityColors = {
-      Critical: "#ff4444",
-      High: "#ff8800",
-      Medium: "#ffaa00",
-      Low: "#88cc00",
-    };
 
-    return (
-      <View style={styles.assetCard}>
-        <View style={styles.assetHeader}>
-          <Text style={styles.assetName}>{item.assetName}</Text>
-          <View
-            style={[
-              styles.severityBadge,
-              { backgroundColor: severityColors[item.mostSevere] },
-            ]}
-          >
-            <Text style={styles.severityText}>{item.mostSevere}</Text>
-          </View>
-        </View>
-        <Text style={styles.assetDetail}>
-          Vulnerabilidades: {item.vulnCount}
-        </Text>
-      </View>
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -208,17 +144,47 @@ ${vulnContext}`;
           )}
         </View>
 
-        <View style={styles.compromisedAssetsSection}>
-          <Text style={styles.sectionTitle}>
-            🔴 Activos Comprometidos ({compromisedAssets.length})
-          </Text>
-          <FlatList
-            data={compromisedAssets}
-            keyExtractor={(item) => item.assetId}
-            renderItem={renderCompromisedAsset}
-            scrollEnabled={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+        <View style={styles.viewSelectorContainer}>
+          <TouchableOpacity
+            style={[
+              styles.viewButton,
+              activeView === "compromised" && styles.viewButtonActive,
+            ]}
+            onPress={() => setActiveView("compromised")}
+          >
+            <Text
+              style={[
+                styles.viewButtonText,
+                activeView === "compromised" && styles.viewButtonTextActive,
+              ]}
+            >
+               Activos Comprometidos
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.viewButton,
+              activeView === "inventory" && styles.viewButtonActive,
+            ]}
+            onPress={() => setActiveView("inventory")}
+          >
+            <Text
+              style={[
+                styles.viewButtonText,
+                activeView === "inventory" && styles.viewButtonTextActive,
+              ]}
+            >
+               Inventario de Activos
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.listContainer}>
+          {activeView === "compromised" ? (
+            <CompromisedAssetsList />
+          ) : (
+            <InventoryList />
+          )}
         </View>
       </ScrollView>
 
@@ -314,54 +280,40 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     flex: 1,
   },
-  compromisedAssetsSection: {
+  viewSelectorContainer: {
+    flexDirection: "row",
+    gap: 10,
     marginTop: 20,
+    marginBottom: 10,
+  },
+  viewButton: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#ccc",
+    alignItems: "center",
+  },
+  viewButtonActive: {
+    backgroundColor: "#003366",
+    borderColor: "#003366",
+  },
+  viewButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#666",
+  },
+  viewButtonTextActive: {
+    color: "#fff",
+  },
+  listContainer: {
     backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 15,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 15,
-  },
-  assetCard: {
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: "#ff4444",
-  },
-  assetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  assetName: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
-    flex: 1,
-  },
-  severityBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginLeft: 10,
-  },
-  severityText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  assetDetail: {
-    fontSize: 12,
-    color: "#666",
   },
   modalContainer: {
     flex: 1,
